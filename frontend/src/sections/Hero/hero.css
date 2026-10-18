@@ -1,0 +1,81 @@
+.hero-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 40%, transparent 100%);
+}
+
+.editor-float {
+  animation: editor-float 6s ease-in-out infinite;
+}
+
+@keyframes editor-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0.001deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(0.001deg);
+  }
+}
+
+.editor-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: -0.2em;
+  background: #aeafad;
+}
+
+.editor-cursor-idle {
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.type-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1.05em;
+  margin-left: 4px;
+  vertical-align: -0.15em;
+  background: #00d4ff;
+  box-shadow: 0 0 8px #00d4ff;
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+.scroll-cue-dot {
+  animation: scroll-cue 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-float {
+    animation: none;
+  }
+}
+
+/* Keep the three CTAs on one row beside the editor */
+@media (min-width: 1024px) {
+  .hero-ctas > * {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

@@ -1,0 +1,218 @@
+/* ---------- Chassis ---------- */
+.kb-chassis {
+  position: relative;
+  border-radius: 26px;
+  padding: 18px 20px 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 30%),
+    linear-gradient(160deg, #161e34 0%, #0c1222 55%, #070b17 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.65),
+    0 40px 80px -30px rgba(0, 0, 0, 0.9),
+    0 0 70px -12px rgba(0, 212, 255, 0.35);
+}
+
+.kb-chassis::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 28px;
+  background: conic-gradient(from var(--kb-angle, 0deg), transparent 0deg, rgba(0, 212, 255, 0.6) 60deg, transparent 140deg, transparent 220deg, rgba(0, 212, 255, 0.45) 280deg, transparent 360deg);
+  filter: blur(16px);
+  opacity: 0.65;
+  animation: kb-rotate 9s linear infinite;
+}
+
+@property --kb-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes kb-rotate {
+  to {
+    --kb-angle: 360deg;
+  }
+}
+
+.kb-screw {
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #4a5778, #1a2238 70%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.kb-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #00d4ff;
+  box-shadow: 0 0 8px #00d4ff;
+}
+
+/* ---------- Plate with cyan backlight ---------- */
+.kb-plate {
+  border-radius: 16px;
+  padding: 16px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(0, 212, 255, 0.2), transparent 65%),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.08), transparent 60%),
+    #04070e;
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(0, 212, 255, 0.1);
+}
+
+/* ---------- Keys ---------- */
+.kb-key {
+  --depth: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  height: 100%;
+  min-height: 6rem;
+  padding: 0.7rem 0.5rem 0.6rem;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  color: #cfe3ee;
+  background: linear-gradient(180deg, #232c46 0%, #161d31 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 var(--depth) 0 0 #080c17,
+    0 calc(var(--depth) + 3px) 14px rgba(0, 212, 255, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.28);
+  transform: translateY(0);
+  transition:
+    transform 0.09s ease-out,
+    box-shadow 0.09s ease-out,
+    border-color 0.15s,
+    color 0.15s;
+  outline: none;
+}
+
+/* Cyan backlight leaking from under every key */
+.kb-key::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: calc(-1 * var(--depth) - 3px);
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.6);
+  filter: blur(6px);
+  opacity: 0.55;
+  transition: opacity 0.1s;
+  pointer-events: none;
+}
+
+/* Inner dish of the keycap */
+.kb-key::before {
+  content: '';
+  position: absolute;
+  inset: 5px 5px 9px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0.12));
+  pointer-events: none;
+}
+
+.kb-key:hover,
+.kb-key:focus-visible,
+.kb-key[data-pressed='true'] {
+  transform: translateY(3px);
+  color: #ffffff;
+  border-color: rgba(0, 212, 255, 0.55);
+  box-shadow:
+    0 calc(var(--depth) - 3px) 0 0 #080c17,
+    0 0 22px rgba(0, 212, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 14px rgba(0, 212, 255, 0.22);
+}
+
+.kb-key:hover::after,
+.kb-key:focus-visible::after,
+.kb-key[data-pressed='true']::after {
+  opacity: 1;
+}
+
+.kb-key-icon {
+  position: relative;
+  width: 2.25rem;
+  height: 2.25rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  transition: transform 0.15s;
+}
+
+.kb-key:hover .kb-key-icon {
+  transform: scale(1.08);
+}
+
+.kb-key-name {
+  position: relative;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Category label key */
+.kb-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #04121a;
+  background: linear-gradient(180deg, #3fe4ff 0%, #00b4da 100%);
+  box-shadow:
+    0 5px 0 0 #00627a,
+    0 8px 18px rgba(0, 212, 255, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+@media (max-width: 640px) {
+  .kb-chassis {
+    padding: 12px;
+    border-radius: 18px;
+  }
+  .kb-plate {
+    padding: 10px;
+  }
+  .kb-key {
+    --depth: 4px;
+    min-height: 5.25rem;
+    gap: 0.35rem;
+  }
+  .kb-key-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+  .kb-key-name {
+    font-size: 0.62rem;
+  }
+}
+
+/* Mobile grid: stretch the last key(s) so a row never ends with a gap */
+@media (max-width: 639px) {
+  .kb-row > :last-child:nth-child(3n + 1) {
+    grid-column: span 3;
+  }
+  .kb-row > :last-child:nth-child(3n + 2) {
+    grid-column: span 2;
+  }
+}

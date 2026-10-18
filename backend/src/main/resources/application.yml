@@ -1,0 +1,90 @@
+server:
+  port: 8080
+  # Tomcat's RemoteIpValve trusts X-Forwarded-For/-Proto only from internal proxies (the Nginx container).
+  forward-headers-strategy: native
+  compression:
+    enabled: true
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+    whitelabel:
+      enabled: false
+  tomcat:
+    max-swallow-size: 2MB
+    max-http-form-post-size: 2MB
+
+spring:
+  application:
+    name: portfolio-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/portfolio}
+    username: ${SPRING_DATASOURCE_USERNAME:portfolio}
+    password: ${SPRING_DATASOURCE_PASSWORD:portfolio}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 50
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_SIZE:15MB}
+      max-request-size: ${MAX_UPLOAD_SIZE:15MB}
+  jackson:
+    default-property-inclusion: non_null
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:7200000}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  storage:
+    upload-dir: ${UPLOAD_DIR:/app/uploads}
+  security:
+    cookie-name: portfolio_session
+    cookie-secure: ${COOKIE_SECURE:false}
+    max-failed-attempts: ${LOGIN_MAX_FAILED_ATTEMPTS:5}
+    lock-duration: ${LOGIN_LOCK_DURATION:15m}
+    login-per-ip-per-window: ${LOGIN_RATE_PER_IP:10}
+    login-window: 15m
+    api-reads-per-minute: ${RATE_LIMIT_READS_PER_MIN:300}
+    api-writes-per-minute: ${RATE_LIMIT_WRITES_PER_MIN:60}
+    contact-per-hour: ${RATE_LIMIT_CONTACT_PER_HOUR:5}
+    uploads-per-hour: ${RATE_LIMIT_UPLOADS_PER_HOUR:30}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: ${SWAGGER_ENABLED:true}
+  api-docs:
+    path: /v3/api-docs
+    enabled: ${SWAGGER_ENABLED:true}
+
+logging:
+  level:
+    AUDIT: INFO

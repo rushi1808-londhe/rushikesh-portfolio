@@ -1,0 +1,271 @@
+.hl-root {
+  --hl-accent: #00d4ff;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #0a0f1e;
+  color: var(--hl-accent);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hl-accent-strong: #7eeaff;
+  cursor: default;
+}
+
+.hl-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(10, 15, 30, 0.1) 0%, rgba(10, 15, 30, 0.55) 60%, rgba(6, 10, 21, 0.92) 100%);
+  pointer-events: none;
+}
+
+.hl-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(6, 10, 21, 0.3) 0px, rgba(6, 10, 21, 0.3) 1px, transparent 1px, transparent 3px);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.hl-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.hl-glitch-wrap {
+  position: relative;
+  width: min(36rem, 100%);
+}
+
+/* ---------- Terminal ---------- */
+.hl-terminal {
+  border: 1px solid rgba(0, 212, 255, 0.45);
+  border-radius: 16px;
+  background: rgba(15, 22, 41, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 255, 0.08),
+    0 0 40px rgba(0, 212, 255, 0.18),
+    inset 0 0 40px rgba(0, 212, 255, 0.05);
+  backdrop-filter: blur(2px);
+  overflow: hidden;
+}
+
+.hl-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.25);
+  background: rgba(0, 212, 255, 0.06);
+}
+
+.hl-terminal-bar span {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 212, 255, 0.6);
+}
+
+.hl-terminal-bar p {
+  margin-left: auto;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.hl-terminal-body {
+  padding: 1.25rem 1.4rem 1.4rem;
+}
+
+.hl-line {
+  min-height: 1.6em;
+  font-size: clamp(0.85rem, 2.6vw, 1.05rem);
+  line-height: 1.6;
+  white-space: pre;
+  text-shadow: 0 0 6px rgba(0, 212, 255, 0.75);
+}
+
+.hl-line-strong {
+  font-weight: 700;
+}
+
+.hl-line-welcome {
+  font-weight: 700;
+  color: #e6fbff;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.95);
+}
+
+.hl-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: hl-blink 0.9s steps(1) infinite;
+}
+
+@keyframes hl-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Progress ---------- */
+.hl-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.hl-progress-track {
+  position: relative;
+  flex: 1;
+  height: 12px;
+  border: 1px solid rgba(0, 212, 255, 0.6);
+  border-radius: 2px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.hl-progress-fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--hl-accent) 0 8px, rgba(0, 212, 255, 0.55) 8px 10px);
+  box-shadow: 0 0 12px var(--hl-accent);
+  transition: width 60ms linear;
+}
+
+.hl-percent {
+  flex: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.8);
+}
+
+/* ---------- Glitch-out ---------- */
+.hl-phase-glitch .hl-center {
+  animation:
+    hl-flicker 0.65s steps(1) both,
+    hl-shake 0.12s linear infinite;
+}
+
+.hl-phase-glitch .hl-terminal {
+  text-shadow: none;
+  animation: hl-rgb 0.18s steps(2) infinite;
+}
+
+.hl-phase-glitch canvas:first-child {
+  animation: hl-hue 0.3s steps(3) infinite;
+}
+
+.hl-slice {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hl-slice-a {
+  animation: hl-slice-a 0.22s steps(2) infinite;
+  mix-blend-mode: screen;
+  filter: drop-shadow(-4px 0 0 rgba(255, 0, 64, 0.9));
+}
+
+.hl-slice-b {
+  animation: hl-slice-b 0.26s steps(2) infinite;
+  mix-blend-mode: screen;
+  filter: drop-shadow(4px 0 0 rgba(0, 229, 255, 0.9));
+}
+
+.hl-noise {
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  animation: hl-noise-in 0.65s ease-in both;
+}
+
+.hl-blackout {
+  position: absolute;
+  inset: 0;
+  background: #0a0f1e;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in;
+}
+
+.hl-phase-blackout .hl-blackout,
+.hl-phase-reveal .hl-blackout {
+  opacity: 1;
+}
+
+.hl-phase-reveal {
+  animation: hl-reveal 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes hl-flicker {
+  0% { opacity: 1; }
+  8% { opacity: 0.2; }
+  12% { opacity: 1; }
+  20% { opacity: 0.05; }
+  26% { opacity: 0.9; }
+  38% { opacity: 0.3; }
+  44% { opacity: 1; }
+  58% { opacity: 0.1; }
+  64% { opacity: 0.8; }
+  78% { opacity: 0; }
+  84% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+@keyframes hl-shake {
+  0% { transform: translate(0, 0) skewX(0deg); }
+  25% { transform: translate(-6px, 2px) skewX(-4deg); }
+  50% { transform: translate(5px, -3px) skewX(3deg); }
+  75% { transform: translate(-3px, 1px) skewX(-1deg); }
+  100% { transform: translate(0, 0) skewX(0deg); }
+}
+
+@keyframes hl-rgb {
+  0% { box-shadow: -6px 0 0 rgba(255, 0, 64, 0.6), 6px 0 0 rgba(0, 229, 255, 0.6), 0 0 40px rgba(0, 212, 255, 0.3); }
+  100% { box-shadow: 6px 0 0 rgba(255, 0, 64, 0.6), -6px 0 0 rgba(0, 229, 255, 0.6), 0 0 60px rgba(0, 212, 255, 0.5); }
+}
+
+@keyframes hl-slice-a {
+  0% { clip-path: inset(10% 0 70% 0); transform: translateX(-18px); }
+  50% { clip-path: inset(55% 0 25% 0); transform: translateX(14px); }
+  100% { clip-path: inset(80% 0 5% 0); transform: translateX(-8px); }
+}
+
+@keyframes hl-slice-b {
+  0% { clip-path: inset(65% 0 15% 0); transform: translateX(16px); }
+  50% { clip-path: inset(20% 0 62% 0); transform: translateX(-20px); }
+  100% { clip-path: inset(40% 0 45% 0); transform: translateX(10px); }
+}
+
+@keyframes hl-hue {
+  0% { filter: none; }
+  33% { filter: hue-rotate(90deg) saturate(2); transform: translateX(4px); }
+  66% { filter: invert(0.15); transform: translateX(-4px); }
+  100% { filter: none; }
+}
+
+@keyframes hl-noise-in {
+  0% { opacity: 0; }
+  30% { opacity: 0.45; }
+  70% { opacity: 0.7; }
+  100% { opacity: 0.9; }
+}
+
+@keyframes hl-reveal {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-phase-glitch .hl-center,
+  .hl-phase-glitch .hl-terminal,
+  .hl-slice,
+  .hl-phase-glitch canvas:first-child {
+    animation: none;
+  }
+}
