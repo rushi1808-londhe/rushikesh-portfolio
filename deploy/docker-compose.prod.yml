@@ -31,7 +31,7 @@ services:
       start_period: 10s
 
   backend:
-    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio/backend:${IMAGE_TAG:?IMAGE_TAG is required}
     container_name: rushikesh-portfolio-backend
     logging: *default-logging
     restart: unless-stopped
@@ -57,7 +57,7 @@ services:
       start_period: 40s
 
   frontend:
-    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio/frontend:${IMAGE_TAG:?IMAGE_TAG is required}
     container_name: rushikesh-portfolio-frontend
     logging: *default-logging
     restart: unless-stopped

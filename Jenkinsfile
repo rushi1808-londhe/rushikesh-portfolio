@@ -85,8 +85,8 @@ pipeline {
                 // The frontend image build also type-checks (tsc -b).
                 sh '''
                     ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-                    docker build -t "$ECR_REGISTRY/portfolio-backend:$GIT_SHA"  backend
-                    docker build -t "$ECR_REGISTRY/portfolio-frontend:$GIT_SHA" frontend
+                    docker build -t "$ECR_REGISTRY/portfolio/backend:$GIT_SHA"  backend
+                    docker build -t "$ECR_REGISTRY/portfolio/frontend:$GIT_SHA" frontend
                 '''
             }
         }
@@ -111,7 +111,7 @@ pipeline {
                         }
 
                         # Repositories are created once in AWS with tag immutability on.
-                        for repo in portfolio-backend portfolio-frontend; do
+                        for repo in portfolio/backend portfolio/frontend; do
                           # 1. Commit tag. Rebuilding the same commit (e.g. to redeploy after a secret change)
                           #    reuses the image already pushed.
                           if [ -n "$(image_info "$repo" "$GIT_SHA")" ]; then
@@ -183,14 +183,21 @@ pipeline {
 
     post {
         always {
-            // Don't let tagged images pile up on the build agent.
-            sh '''
-                ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-                docker image rm "$ECR_REGISTRY/portfolio-backend:$GIT_SHA" "$ECR_REGISTRY/portfolio-frontend:$GIT_SHA" >/dev/null 2>&1 || true
-            '''
+            script {
+                // GIT_SHA is only set once Checkout ran; if the build failed earlier (e.g. a missing
+                // credential in the environment block) there is no workspace and nothing to clean up.
+                if (env.GIT_SHA) {
+                    // Don't let tagged images pile up on the build agent.
+                    sh '''
+                        ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+                        docker image rm "$ECR_REGISTRY/portfolio/backend:$GIT_SHA" "$ECR_REGISTRY/portfolio/frontend:$GIT_SHA" >/dev/null 2>&1 || true
+                    '''
+                }
+            }
         }
         failure {
-            echo "Deploy failed. To roll back, run on EC2: ~/${REMOTE_DIR}/deploy.sh <account-id>.dkr.ecr.${AWS_REGION}.amazonaws.com <previous tag from ~/${REMOTE_DIR}/deployed-tags.log> ${SECRET_ID}"
+            // Plain text: environment variables may be unset if the build failed before any stage ran.
+            echo 'Build failed. If a deploy broke the site, roll back on EC2: ~/portfolio/deploy.sh <account-id>.dkr.ecr.ap-south-1.amazonaws.com <previous tag from ~/portfolio/deployed-tags.log> prod/portfolio'
         }
     }
 }
