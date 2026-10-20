@@ -83,10 +83,12 @@ pipeline {
         stage('Build images') {
             steps {
                 // The frontend image build also type-checks (tsc -b).
+                // The build agent is an Apple Silicon Mac (arm64) but the EC2 host is x86, so build for
+                // the server's platform explicitly (Docker Desktop emulates amd64; first build is slower).
                 sh '''
                     ECR_REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-                    docker build -t "$ECR_REGISTRY/portfolio/backend:$GIT_SHA"  backend
-                    docker build -t "$ECR_REGISTRY/portfolio/frontend:$GIT_SHA" frontend
+                    docker build --platform linux/amd64 -t "$ECR_REGISTRY/portfolio/backend:$GIT_SHA"  backend
+                    docker build --platform linux/amd64 -t "$ECR_REGISTRY/portfolio/frontend:$GIT_SHA" frontend
                 '''
             }
         }
