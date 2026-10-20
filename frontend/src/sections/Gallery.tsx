@@ -10,8 +10,9 @@ interface Props {
 }
 
 /** Only real images are rendered as pictures; uploads are stored as JPEG, so a PDF here means legacy data. */
-const isImage = (url?: string) => !!url && !/\.pdf($|\?)/i.test(url);
-const linkLabel = (url: string) => (/\.pdf($|\?)/i.test(url) ? 'View PDF ↗' : 'View credential ↗');
+const isPdf = (url?: string) => !!url && /\.pdf($|\?)/i.test(url);
+const isImage = (url?: string) => !!url && !isPdf(url);
+const linkLabel = (url: string) => (isPdf(url) ? 'View PDF ↗' : 'View credential ↗');
 
 interface Tile extends LightboxItem {
   key: string;
@@ -65,15 +66,20 @@ function MasonryGroup({ heading, tiles }: { heading: string; tiles: Tile[] }) {
 }
 
 export default function Gallery({ certificates, extracurriculars }: Props) {
-  const certTiles: Tile[] = certificates.map((c) => ({
-    key: `c-${c.id ?? c.title}`,
-    src: c.imageUrl ?? '',
-    hasImage: isImage(c.imageUrl),
-    title: c.title,
-    subtitle: [c.issuer, c.issueDate].filter(Boolean).join(' · ') || undefined,
-    description: c.description,
-    link: c.credentialUrl,
-  }));
+  const certTiles: Tile[] = certificates.map((c) => {
+    const hasImage = isImage(c.imageUrl);
+    return {
+      key: `c-${c.id ?? c.title}`,
+      src: c.imageUrl ?? '',
+      hasImage,
+      title: c.title,
+      subtitle: [c.issuer, c.issueDate].filter(Boolean).join(' · ') || undefined,
+      description: c.description,
+      // A PDF upload is shown as its image already, so only offer the PDF when there's no image.
+      // External verification links are always kept.
+      link: hasImage && isPdf(c.credentialUrl) ? undefined : c.credentialUrl,
+    };
+  });
   const extraTiles: Tile[] = extracurriculars.map((x) => ({
     key: `x-${x.id ?? x.title}`,
     src: x.imageUrl ?? '',
