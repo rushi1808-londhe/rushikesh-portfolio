@@ -41,6 +41,8 @@ export interface Experience {
   logoUrl?: string;
   displayOrder: number;
   bullets: string[];
+  /** Explicit "Stack" chips; when empty the stack is auto-detected from the bullets. */
+  skills: string[];
 }
 
 export interface ProjectImage {

@@ -15,6 +15,7 @@ public record ExperienceDto(
         @Size(max = 160) String location,
         @Pattern(regexp = "^(https?://\\S+|/uploads/[A-Za-z0-9._-]+)?$", message = "must be an http(s) URL or an uploaded file") @Size(max = 500) String logoUrl,
         int displayOrder,
-        @NotNull List<@NotBlank String> bullets
+        @NotNull List<@NotBlank String> bullets,
+        @NotNull List<@NotBlank @Size(max = 80) String> skills
 ) {
 }

@@ -3,6 +3,7 @@ package com.rushikesh.portfolio.service;
 import com.rushikesh.portfolio.dto.ExperienceDto;
 import com.rushikesh.portfolio.entity.Experience;
 import com.rushikesh.portfolio.entity.ExperienceBullet;
+import com.rushikesh.portfolio.entity.ExperienceSkill;
 import com.rushikesh.portfolio.exception.NotFoundException;
 import com.rushikesh.portfolio.repository.ExperienceRepository;
 import org.springframework.stereotype.Service;
@@ -65,10 +66,12 @@ public class ExperienceService {
         e.setLogoUrl(ProfileService.blankToNull(dto.logoUrl()));
         e.setDisplayOrder(dto.displayOrder());
         e.replaceBullets(dto.bullets().stream().map(String::trim).toList());
+        e.replaceSkills(dto.skills().stream().map(String::trim).distinct().toList());
     }
 
     private ExperienceDto toDto(Experience e) {
         return new ExperienceDto(e.getId(), e.getCompany(), e.getRole(), e.getDuration(), e.getLocation(),
-                e.getLogoUrl(), e.getDisplayOrder(), e.getBullets().stream().map(ExperienceBullet::getContent).toList());
+                e.getLogoUrl(), e.getDisplayOrder(), e.getBullets().stream().map(ExperienceBullet::getContent).toList(),
+                e.getSkills().stream().map(ExperienceSkill::getName).toList());
     }
 }

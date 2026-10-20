@@ -41,7 +41,11 @@ function ExperienceEntry({ exp, skills }: { exp: ExperienceItem; skills: Skill[]
   const ref = useRef<HTMLLIElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
 
-  const stack = useMemo(() => matchSkills(exp.bullets, skills, 8), [exp.bullets, skills]);
+  // Skills picked in the admin panel win; otherwise detect them from the bullet points.
+  const stack = useMemo(
+    () => (exp.skills?.length ? exp.skills : matchSkills(exp.bullets, skills, 8).map((s) => s.name)),
+    [exp.skills, exp.bullets, skills],
+  );
   const current = /present|current|now/i.test(exp.duration);
 
   return (
@@ -106,13 +110,13 @@ function ExperienceEntry({ exp, skills }: { exp: ExperienceItem; skills: Skill[]
             <div className="relative border-t border-white/5 pt-6">
               <p className="label">Stack</p>
               <ul className="flex flex-wrap gap-2">
-                {stack.map((s) => (
+                {stack.map((name) => (
                   <li
-                    key={s.id ?? s.name}
+                    key={name}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-navy-900/70 px-2.5 py-1.5 font-mono text-xs text-slate-200"
                   >
-                    <SkillLogo skill={s} className="h-4 w-4" />
-                    {s.name}
+                    <SkillLogo name={name} skills={skills} className="h-4 w-4" />
+                    {name}
                   </li>
                 ))}
               </ul>

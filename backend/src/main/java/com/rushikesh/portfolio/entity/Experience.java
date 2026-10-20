@@ -38,6 +38,10 @@ public class Experience extends Auditable {
     @OrderBy("displayOrder ASC")
     private List<ExperienceBullet> bullets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "experience", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<ExperienceSkill> skills = new ArrayList<>();
+
     public void replaceBullets(List<String> contents) {
         bullets.clear();
         for (int i = 0; i < contents.size(); i++) {
@@ -46,6 +50,17 @@ public class Experience extends Auditable {
             bullet.setContent(contents.get(i));
             bullet.setDisplayOrder(i + 1);
             bullets.add(bullet);
+        }
+    }
+
+    public void replaceSkills(List<String> names) {
+        skills.clear();
+        for (int i = 0; i < names.size(); i++) {
+            ExperienceSkill skill = new ExperienceSkill();
+            skill.setExperience(this);
+            skill.setName(names.get(i));
+            skill.setDisplayOrder(i + 1);
+            skills.add(skill);
         }
     }
 }

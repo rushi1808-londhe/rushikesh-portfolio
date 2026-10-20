@@ -4,8 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -34,6 +38,9 @@ class PortfolioApplicationTests {
     @Autowired
     private TestRestTemplate rest;
 
+    @LocalServerPort
+    private int port;
+
     @Test
     void healthIsUp() {
         ResponseEntity<String> response = rest.getForEntity("/actuator/health", String.class);
@@ -55,6 +62,27 @@ class PortfolioApplicationTests {
         ResponseEntity<byte[]> logo = rest.getForEntity("/uploads/seed-sbfc-logo.jpg", byte[].class);
         assertThat(logo.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(logo.getBody()).isNotEmpty();
+    }
+
+    @Test
+    void adminCanSetExperienceSkills() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // Login and writes need a same-origin Origin or Referer; the JDK HTTP client drops Origin, so use Referer.
+        headers.set(HttpHeaders.REFERER, "http://localhost:" + port + "/admin");
+        ResponseEntity<String> login = rest.postForEntity("/api/v1/auth/login",
+                new HttpEntity<>("{\"username\":\"admin\",\"password\":\"test-admin-password\"}", headers), String.class);
+        assertThat(login.getStatusCode()).isEqualTo(HttpStatus.OK);
+        headers.add(HttpHeaders.COOKIE, login.getHeaders().getFirst(HttpHeaders.SET_COOKIE).split(";", 2)[0]);
+
+        String body = """
+                {"company":"Test Co","role":"Engineer","duration":"2026","displayOrder":99,
+                 "bullets":["Built things"],"skills":["Kafka"," Java ","Kafka"]}""";
+        ResponseEntity<String> created = rest.postForEntity("/api/v1/experiences", new HttpEntity<>(body, headers), String.class);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        // Trimmed, de-duplicated, order kept — and returned by the public API.
+        assertThat(created.getBody()).contains("\"skills\":[\"Kafka\",\"Java\"]");
+        assertThat(rest.getForEntity("/api/v1/experiences", String.class).getBody()).contains("\"skills\":[\"Kafka\",\"Java\"]");
     }
 
     @Test
