@@ -38,6 +38,7 @@ export interface Experience {
   role: string;
   duration: string;
   location?: string;
+  logoUrl?: string;
   displayOrder: number;
   bullets: string[];
 }

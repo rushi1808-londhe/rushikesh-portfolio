@@ -28,6 +28,9 @@ public class Experience extends Auditable {
 
     private String location;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 

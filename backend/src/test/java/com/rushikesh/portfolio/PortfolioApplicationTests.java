@@ -48,6 +48,16 @@ class PortfolioApplicationTests {
     }
 
     @Test
+    void seededExperienceLogoIsLinkedAndServed() {
+        ResponseEntity<String> experiences = rest.getForEntity("/api/v1/experiences", String.class);
+        assertThat(experiences.getBody()).contains("\"logoUrl\":\"/uploads/seed-sbfc-logo.jpg\"");
+
+        ResponseEntity<byte[]> logo = rest.getForEntity("/uploads/seed-sbfc-logo.jpg", byte[].class);
+        assertThat(logo.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(logo.getBody()).isNotEmpty();
+    }
+
+    @Test
     void adminEndpointsRequireAuth() {
         ResponseEntity<String> response = rest.getForEntity("/api/v1/auth/me", String.class);
         assertThat(response.getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);

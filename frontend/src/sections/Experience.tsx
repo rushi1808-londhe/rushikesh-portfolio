@@ -63,9 +63,16 @@ function ExperienceEntry({ exp, skills }: { exp: ExperienceItem; skills: Skill[]
           </span>
           <div className="relative">
             <div className="flex items-start gap-4">
-              <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border border-cyan/40 bg-gradient-to-br from-cyan/20 to-navy-900 font-mono text-lg font-bold text-cyan shadow-glow">
-                {initials(exp.company)}
-              </span>
+              {exp.logoUrl ? (
+                // Logos usually come on a white background, so they sit on a white tile.
+                <span className="flex h-14 w-14 flex-none items-center justify-center overflow-hidden rounded-2xl border border-cyan/40 bg-white p-1.5 shadow-glow">
+                  <img src={exp.logoUrl} alt={`${exp.company} logo`} loading="lazy" className="h-full w-full object-contain" />
+                </span>
+              ) : (
+                <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border border-cyan/40 bg-gradient-to-br from-cyan/20 to-navy-900 font-mono text-lg font-bold text-cyan shadow-glow">
+                  {initials(exp.company)}
+                </span>
+              )}
               <div className="min-w-0">
                 <h3 className="text-2xl font-bold leading-tight text-white sm:text-3xl">{exp.company}</h3>
                 <p className="mt-1 flex items-start gap-2 font-medium leading-snug text-cyan">

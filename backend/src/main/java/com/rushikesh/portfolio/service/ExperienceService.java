@@ -14,9 +14,11 @@ import java.util.List;
 public class ExperienceService {
 
     private final ExperienceRepository repository;
+    private final FileStorageService files;
 
-    public ExperienceService(ExperienceRepository repository) {
+    public ExperienceService(ExperienceRepository repository, FileStorageService files) {
         this.repository = repository;
+        this.files = files;
     }
 
     @Transactional(readOnly = true)
@@ -39,13 +41,16 @@ public class ExperienceService {
     @Transactional
     public ExperienceDto update(Long id, ExperienceDto dto) {
         Experience e = load(id);
+        files.replaced(e.getLogoUrl(), ProfileService.blankToNull(dto.logoUrl()));
         apply(e, dto);
         return toDto(repository.save(e));
     }
 
     @Transactional
     public void delete(Long id) {
-        repository.delete(load(id));
+        Experience e = load(id);
+        repository.delete(e);
+        files.deleteIfManaged(e.getLogoUrl());
     }
 
     private Experience load(Long id) {
@@ -57,12 +62,13 @@ public class ExperienceService {
         e.setRole(dto.role().trim());
         e.setDuration(dto.duration().trim());
         e.setLocation(ProfileService.blankToNull(dto.location()));
+        e.setLogoUrl(ProfileService.blankToNull(dto.logoUrl()));
         e.setDisplayOrder(dto.displayOrder());
         e.replaceBullets(dto.bullets().stream().map(String::trim).toList());
     }
 
     private ExperienceDto toDto(Experience e) {
         return new ExperienceDto(e.getId(), e.getCompany(), e.getRole(), e.getDuration(), e.getLocation(),
-                e.getDisplayOrder(), e.getBullets().stream().map(ExperienceBullet::getContent).toList());
+                e.getLogoUrl(), e.getDisplayOrder(), e.getBullets().stream().map(ExperienceBullet::getContent).toList());
     }
 }
