@@ -126,14 +126,15 @@ pipeline {
                           sha_digest=$(image_info "$repo" "$GIT_SHA" | cut -f1)
                           version_digest=$(image_info "$repo" "$VERSION" | cut -f1)
                           if [ -z "$version_digest" ]; then
-                            media_type=$(image_info "$repo" "$GIT_SHA" | cut -f2)
-                            aws ecr batch-get-image --region "$AWS_REGION" --repository-name "$repo" \
-                              --image-ids imageTag="$GIT_SHA" --accepted-media-types $MEDIA_TYPES \
-                              --query 'images[0].imageManifest' --output text > manifest.json
-                            aws ecr put-image --region "$AWS_REGION" --repository-name "$repo" \
-                              --image-tag "$VERSION" --image-manifest file://manifest.json \
-                              --image-manifest-media-type "$media_type" >/dev/null
-                            rm -f manifest.json
+                            # With a single source, imagetools makes a byte-for-byte copy of the manifest
+                            # in the registry, so the version tag gets exactly the commit image's digest.
+                            docker buildx imagetools create \
+                              --tag "$ECR_REGISTRY/$repo:$VERSION" "$ECR_REGISTRY/$repo:$GIT_SHA"
+                            version_digest=$(image_info "$repo" "$VERSION" | cut -f1)
+                            if [ "$version_digest" != "$sha_digest" ]; then
+                              echo "ERROR: $repo:$VERSION was created with digest $version_digest, expected $sha_digest" >&2
+                              exit 1
+                            fi
                             echo "$repo:$VERSION -> $GIT_SHA"
                           elif [ "$version_digest" = "$sha_digest" ]; then
                             echo "$repo:$VERSION already points to $GIT_SHA"
