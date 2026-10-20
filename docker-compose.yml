@@ -1,7 +1,15 @@
 name: rushikesh-portfolio
 
+# Cap container logs (Docker's default json-file driver grows without limit).
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   postgres:
+    logging: *default-logging
     image: postgres:16-alpine
     container_name: rushikesh-portfolio-postgres
     restart: unless-stopped
@@ -21,6 +29,7 @@ services:
       start_period: 10s
 
   backend:
+    logging: *default-logging
     build:
       context: ./backend
     container_name: rushikesh-portfolio-backend
@@ -48,6 +57,7 @@ services:
       start_period: 40s
 
   frontend:
+    logging: *default-logging
     build:
       context: ./frontend
     container_name: rushikesh-portfolio-frontend

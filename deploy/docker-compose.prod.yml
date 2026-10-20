@@ -1,0 +1,80 @@
+# Production stack on EC2: same services as ../docker-compose.yml, but images are pulled from ECR
+# instead of built. ECR_REGISTRY and IMAGE_TAG are set by deploy.sh; everything else comes from .env
+# (written from AWS Secrets Manager by fetch-env.sh).
+name: rushikesh-portfolio
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rushikesh-portfolio-postgres
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  backend:
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: rushikesh-portfolio-backend
+    logging: *default-logging
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    expose:
+      - "8080"
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+
+  frontend:
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/portfolio-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: rushikesh-portfolio-frontend
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      USE_VIDEO_HERO: ${USE_VIDEO_HERO:-false}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - portfolio-net
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  portfolio-net:
+    driver: bridge
