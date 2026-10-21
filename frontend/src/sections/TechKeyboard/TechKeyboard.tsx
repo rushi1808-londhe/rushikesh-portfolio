@@ -4,6 +4,7 @@ import type { Skill } from '../../types';
 import SectionHeading from '../../components/SectionHeading';
 import { useClickSound } from '../../hooks/useClickSound';
 import Key from './Key';
+import { useCompact } from '../../hooks/useCompact';
 import './keyboard.css';
 
 interface Props {
@@ -18,6 +19,8 @@ export default function TechKeyboard({ skills }: Props) {
   const rotateX = useTransform(scrollYProgress, [0, 1], [32, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [0.88, 1]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [0.2, 1]);
+  // On phones the tilted board is mostly invisible until mid-screen, so it just sits flat.
+  const compact = useCompact();
 
   // One keyboard row per category, in the order categories first appear (driven by display_order).
   const rows = useMemo(() => {
@@ -30,7 +33,7 @@ export default function TechKeyboard({ skills }: Props) {
     <section id="skills" className="section">
       <SectionHeading index="01" title="Tech Stack" />
       <div ref={boardRef} style={{ perspective: 1400 }}>
-        <motion.div className="kb-chassis isolate" style={{ rotateX, scale, opacity, transformOrigin: '50% 100%' }}>
+        <motion.div className="kb-chassis isolate" style={compact ? undefined : { rotateX, scale, opacity, transformOrigin: '50% 100%' }}>
           {/* Top bezel */}
           <div className="mb-3 flex items-center justify-between px-1">
             <div className="flex items-center gap-2">

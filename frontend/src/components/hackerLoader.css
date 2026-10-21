@@ -147,7 +147,7 @@
 /* ---------- Glitch-out ---------- */
 .hl-phase-glitch .hl-center {
   animation:
-    hl-flicker 0.65s steps(1) both,
+    hl-flicker 0.3s steps(1) both,
     hl-shake 0.12s linear infinite;
 }
 
@@ -181,7 +181,7 @@
 .hl-noise {
   image-rendering: pixelated;
   mix-blend-mode: screen;
-  animation: hl-noise-in 0.65s ease-in both;
+  animation: hl-noise-in 0.3s ease-in both;
 }
 
 .hl-blackout {
@@ -190,7 +190,7 @@
   background: #0a0f1e;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.15s ease-in;
 }
 
 .hl-phase-blackout .hl-blackout,
@@ -199,7 +199,7 @@
 }
 
 .hl-phase-reveal {
-  animation: hl-reveal 0.6s ease-out forwards;
+  animation: hl-reveal 0.4s ease-out forwards;
   pointer-events: none;
 }
 

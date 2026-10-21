@@ -3,17 +3,35 @@ import { useLocation } from 'react-router-dom';
 import { prefersReducedMotion } from '../utils/scroll';
 import './hackerLoader.css';
 
-/** Set once the boot sequence has played in this page load; a full refresh plays it again. */
-let playedThisPageLoad = false;
-const BOOT_MS = 3000;
-const GLITCH_MS = 650;
-const BLACKOUT_MS = 350;
-const REVEAL_MS = 600;
+/** The boot sequence plays once per browser session; refreshes and repeat visits go straight to the page. */
+const SESSION_KEY = 'portfolio.bootPlayed';
+let playedThisPageLoad = readPlayed();
+const BOOT_MS = 1500;
+const GLITCH_MS = 300;
+const BLACKOUT_MS = 150;
+const REVEAL_MS = 400;
 
 const LINES = ['> Initializing system...', '> Loading portfolio...', '> Access granted.', '> Welcome.'];
-const START_DELAY_MS = 120;
-const CHAR_MS = 28;
-const LINE_PAUSE_MS = 200;
+const START_DELAY_MS = 60;
+const CHAR_MS = 14;
+const LINE_PAUSE_MS = 90;
+
+function readPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  playedThisPageLoad = true;
+  try {
+    sessionStorage.setItem(SESSION_KEY, '1');
+  } catch {
+    // Storage blocked (private mode): it simply plays again next load.
+  }
+}
 
 const ACCENT = '#00d4ff';
 const BACKGROUND = '#0a0f1e';
@@ -213,8 +231,8 @@ interface Props {
 }
 
 /**
- * Full-screen "hacker" boot sequence played on every page load (refresh) before the portfolio.
- * In-app navigation doesn't replay it, and admin routes are never gated by it.
+ * Full-screen "hacker" boot sequence played on the first visit of a browser session before the portfolio.
+ * Tapping or pressing a key skips it, and admin routes are never gated by it.
  */
 export default function HackerLoader({ children }: Props) {
   const { pathname } = useLocation();
@@ -225,7 +243,7 @@ export default function HackerLoader({ children }: Props) {
   const reduced = useMemo(() => prefersReducedMotion(), []);
 
   const finish = useCallback(() => {
-    playedThisPageLoad = true;
+    markPlayed();
     setShown(true);
     setPhase('done');
   }, []);
@@ -257,9 +275,14 @@ export default function HackerLoader({ children }: Props) {
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
+    // Any tap, click or key skips the intro.
+    window.addEventListener('pointerdown', finish);
+    window.addEventListener('keydown', finish);
 
     return () => {
       cancelAnimationFrame(frame);
+      window.removeEventListener('pointerdown', finish);
+      window.removeEventListener('keydown', finish);
       document.body.style.overflow = prevOverflow;
     };
   }, [shown, skip, reduced, finish]);

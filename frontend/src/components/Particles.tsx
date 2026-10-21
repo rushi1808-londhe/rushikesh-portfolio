@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../utils/scroll';
+import { isCompact } from '../hooks/useCompact';
 
 interface Particle {
   x: number;
@@ -21,6 +22,9 @@ export default function Particles({ className = '' }: { className?: string }) {
     if (!canvas || !ctx) return;
 
     const reduced = prefersReducedMotion();
+    // Phones get fewer particles and no glow: shadowBlur is the most expensive part of each frame.
+    const lite = isCompact();
+    let onScreen = true;
     let particles: Particle[] = [];
     let width = 0;
     let height = 0;
@@ -34,7 +38,7 @@ export default function Particles({ className = '' }: { className?: string }) {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.min(110, Math.floor((width * height) / 14000));
+      const count = Math.min(lite ? 36 : 110, Math.floor((width * height) / (lite ? 18000 : 14000)));
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -65,8 +69,10 @@ export default function Particles({ className = '' }: { className?: string }) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0, 212, 255, ${alpha})`;
-        ctx.shadowColor = '#00d4ff';
-        ctx.shadowBlur = 8;
+        if (!lite) {
+          ctx.shadowColor = '#00d4ff';
+          ctx.shadowBlur = 8;
+        }
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
@@ -85,7 +91,7 @@ export default function Particles({ className = '' }: { className?: string }) {
           }
         }
       }
-      if (!reduced) frame = requestAnimationFrame(draw);
+      if (!reduced && onScreen) frame = requestAnimationFrame(draw);
     };
 
     resize();
@@ -96,15 +102,23 @@ export default function Particles({ className = '' }: { className?: string }) {
     });
     ro.observe(canvas);
 
-    const onVisibility = () => {
+    const restart = () => {
       cancelAnimationFrame(frame);
-      if (document.visibilityState === 'visible' && !reduced) frame = requestAnimationFrame(draw);
+      if (document.visibilityState === 'visible' && onScreen && !reduced) frame = requestAnimationFrame(draw);
     };
+    const onVisibility = () => restart();
     document.addEventListener('visibilitychange', onVisibility);
+    // Stop drawing once the hero has scrolled away.
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      restart();
+    });
+    io.observe(canvas);
 
     return () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
+      io.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);

@@ -40,7 +40,7 @@ function MasonryGroup({ heading, tiles }: { heading: string; tiles: Tile[] }) {
                   onClick={() => setIndex(withImages.indexOf(tile))}
                   aria-label={`Open ${tile.title}`}
                 >
-                  <img src={tile.src} alt={tile.title} loading="lazy" className="w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <img src={tile.src} alt={tile.title} loading="lazy" decoding="async" className="w-full bg-navy-900 object-cover transition duration-500 group-hover:scale-105" />
                   <span className="absolute inset-0 flex items-center justify-center bg-base/60 opacity-0 transition group-hover:opacity-100">
                     <span className="rounded-full border border-cyan/60 px-4 py-1.5 font-mono text-xs text-cyan">View</span>
                   </span>

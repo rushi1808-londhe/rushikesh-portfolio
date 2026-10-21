@@ -9,6 +9,7 @@ import CodeEditor from './CodeEditor';
 import { generateSnippet, tokenize } from '../../utils/heroSnippet';
 import { useTypewriterLoop } from '../../hooks/useTypewriter';
 import { scrollToSection } from '../../utils/scroll';
+import { useCompact } from '../../hooks/useCompact';
 import './hero.css';
 
 interface Props {
@@ -38,6 +39,8 @@ export default function Hero({ profile, socialLinks, skills, experiences, hasPro
   const editorY = useTransform(scrollYProgress, [0, 1], [0, 240]);
   const editorRotate = useTransform(scrollYProgress, [0, 1], [0, 12]);
   const editorScale = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
+  // Parallax only on larger screens; on phones it just pushes the editor out of view.
+  const compact = useCompact();
 
   const [firstName, ...restParts] = profile.name.split(/\s+/);
   const lastName = restParts.join(' ');
@@ -57,7 +60,7 @@ export default function Hero({ profile, socialLinks, skills, experiences, hasPro
 
       <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-14 px-5 pb-20 pt-28 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:pb-16 lg:pt-24">
         {/* LEFT — identity */}
-        <motion.div className="text-center lg:text-left" style={{ y: textY, opacity: textOpacity }}>
+        <motion.div className="text-center lg:text-left" style={compact ? undefined : { y: textY, opacity: textOpacity }}>
           <motion.h1
             {...fadeUp(0.1)}
             className="text-[clamp(2.9rem,11vw,5.25rem)] font-black uppercase leading-[0.92] tracking-tight text-white lg:text-[clamp(3.5rem,6.2vw,5.25rem)]"
@@ -146,7 +149,7 @@ export default function Hero({ profile, socialLinks, skills, experiences, hasPro
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.35, ease }}
         >
-          <motion.div style={{ y: editorY, rotateX: editorRotate, scale: editorScale, transformPerspective: 1200 }}>
+          <motion.div style={compact ? undefined : { y: editorY, rotateX: editorRotate, scale: editorScale, transformPerspective: 1200 }}>
             <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-cyan/10 blur-3xl" aria-hidden="true" />
             <CodeEditor fileName="portfolio.ts" tokens={snippet} />
           </motion.div>
