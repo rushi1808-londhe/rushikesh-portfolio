@@ -232,11 +232,12 @@ interface Props {
 
 /**
  * Full-screen "hacker" boot sequence played on the first visit of a browser session before the portfolio.
- * Tapping or pressing a key skips it, and admin routes are never gated by it.
+ * Tapping or pressing a key skips it, and other routes (admin, /bucketlist) are never gated by it.
  */
 export default function HackerLoader({ children }: Props) {
   const { pathname } = useLocation();
-  const skip = pathname.startsWith('/admin');
+  // Only the portfolio home plays it; admin and standalone pages like /bucketlist open directly.
+  const skip = pathname !== '/';
   const [shown, setShown] = useState<boolean>(() => playedThisPageLoad);
   const [phase, setPhase] = useState<Phase>(() => (playedThisPageLoad ? 'done' : 'boot'));
   const [elapsed, setElapsed] = useState(0);

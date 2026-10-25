@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { ContactRequest, Portfolio } from '../types';
+import type { BucketListItem, ContactRequest, Portfolio, Profile } from '../types';
 
 let prefetched: Promise<Portfolio> | null = null;
 
@@ -28,4 +28,14 @@ export async function fetchPortfolio(): Promise<Portfolio> {
 
 export async function sendContact(payload: ContactRequest): Promise<void> {
   await api.post('/contact', payload);
+}
+
+export async function fetchBucketList(): Promise<BucketListItem[]> {
+  const { data } = await api.get<BucketListItem[]>('/bucket-list');
+  return data;
+}
+
+export async function fetchProfile(): Promise<Profile> {
+  const { data } = await api.get<Profile>('/profile');
+  return data;
 }

@@ -5,7 +5,8 @@ import App from './App';
 import { prefetchPortfolio } from './api/public';
 import './index.css';
 
-if (!window.location.pathname.startsWith('/admin')) prefetchPortfolio();
+// Only the portfolio itself needs the full content; other pages load their own data.
+if (window.location.pathname === '/') prefetchPortfolio();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

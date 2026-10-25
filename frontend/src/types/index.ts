@@ -84,6 +84,16 @@ export interface Extracurricular {
   displayOrder: number;
 }
 
+export interface BucketListItem {
+  id?: number;
+  title: string;
+  description?: string;
+  done: boolean;
+  /** Free text, e.g. "March 2026"; only kept once the item is done. */
+  completedOn?: string;
+  displayOrder: number;
+}
+
 export interface Portfolio {
   profile: Profile;
   socialLinks: SocialLink[];

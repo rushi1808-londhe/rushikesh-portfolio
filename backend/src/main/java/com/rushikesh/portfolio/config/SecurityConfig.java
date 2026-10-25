@@ -35,6 +35,7 @@ public class SecurityConfig {
             "/api/v1/skills/**",
             "/api/v1/certificates/**",
             "/api/v1/extracurriculars/**",
+            "/api/v1/bucket-list/**",
             "/api/v1/social-links/**",
             "/uploads/**"
     };

@@ -10,9 +10,10 @@ import SkillsTab from './tabs/SkillsTab';
 import CertificatesTab from './tabs/CertificatesTab';
 import ExtracurricularsTab from './tabs/ExtracurricularsTab';
 import SocialLinksTab from './tabs/SocialLinksTab';
+import BucketListTab from './tabs/BucketListTab';
 import MessagesTab from './tabs/MessagesTab';
 
-type TabId = 'profile' | 'experience' | 'projects' | 'skills' | 'certificates' | 'extracurriculars' | 'social' | 'messages';
+type TabId = 'profile' | 'experience' | 'projects' | 'skills' | 'certificates' | 'extracurriculars' | 'social' | 'bucketlist' | 'messages';
 
 const TABS: { id: TabId; label: string; Component?: ComponentType }[] = [
   { id: 'profile', label: 'Profile', Component: ProfileTab },
@@ -22,6 +23,7 @@ const TABS: { id: TabId; label: string; Component?: ComponentType }[] = [
   { id: 'certificates', label: 'Certificates', Component: CertificatesTab },
   { id: 'extracurriculars', label: 'Extracurriculars', Component: ExtracurricularsTab },
   { id: 'social', label: 'Social Links', Component: SocialLinksTab },
+  { id: 'bucketlist', label: 'Bucket List', Component: BucketListTab },
   { id: 'messages', label: 'Messages' },
 ];
 

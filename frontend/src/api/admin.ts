@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Certificate, ContactMessage, Experience, Extracurricular, LoginResponse, Profile, Project, Skill, SocialLink, UploadResponse } from '../types';
+import type { BucketListItem, Certificate, ContactMessage, Experience, Extracurricular, LoginResponse, Profile, Project, Skill, SocialLink, UploadResponse } from '../types';
 
 export async function login(username: string, password: string): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>('/auth/login', { username, password });
@@ -25,6 +25,8 @@ export interface CrudApi<T extends { id?: number }> {
   create: (item: T) => Promise<T>;
   update: (id: number, item: T) => Promise<T>;
   remove: (id: number) => Promise<void>;
+  /** Saves a new order: every id, top first. */
+  reorder?: (ids: number[]) => Promise<void>;
 }
 
 function crud<T extends { id?: number }>(path: string): CrudApi<T> {
@@ -44,6 +46,12 @@ export const skillsApi = crud<Skill>('/skills');
 export const certificatesApi = crud<Certificate>('/certificates');
 export const extracurricularsApi = crud<Extracurricular>('/extracurriculars');
 export const socialLinksApi = crud<SocialLink>('/social-links');
+export const bucketListApi: CrudApi<BucketListItem> = {
+  ...crud<BucketListItem>('/bucket-list'),
+  reorder: async (ids) => {
+    await api.put('/bucket-list/order', { ids });
+  },
+};
 
 export const messagesApi = {
   list: async () => (await api.get<ContactMessage[]>('/contact')).data,

@@ -48,6 +48,7 @@ export default function CrudTab<T extends { id?: number; displayOrder: number }>
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<T | null>(null);
   const [busyDelete, setBusyDelete] = useState(false);
+  const [moving, setMoving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,6 +110,26 @@ export default function CrudTab<T extends { id?: number; displayOrder: number }>
       toast('error', errorMessage(err));
     } finally {
       setBusyDelete(false);
+    }
+  };
+
+  /** Swaps an item with its neighbour and saves the whole order (only for APIs that support it). */
+  const move = async (index: number, delta: -1 | 1) => {
+    const target = index + delta;
+    if (!api.reorder || target < 0 || target >= items.length) return;
+    const next = [...items];
+    [next[index], next[target]] = [next[target], next[index]];
+    const previous = items;
+    setItems(next.map((item, i) => ({ ...item, displayOrder: i + 1 })));
+    setMoving(true);
+    try {
+      await api.reorder(next.map((item) => item.id!));
+      notifyPortfolioUpdated();
+    } catch (err) {
+      setItems(previous);
+      toast('error', errorMessage(err));
+    } finally {
+      setMoving(false);
     }
   };
 
@@ -240,10 +261,32 @@ export default function CrudTab<T extends { id?: number; displayOrder: number }>
             <div key={group}>
               {group && <p className="mb-2 font-mono text-xs uppercase tracking-widest text-cyan">{group}</p>}
               <ul className="divide-y divide-navy-600 overflow-hidden rounded-xl border border-navy-600">
-                {list.map((item) => {
+                {list.map((item, index) => {
                   const s = summary(item);
                   return (
                     <li key={item.id} className="flex items-center gap-4 bg-navy-800/60 px-4 py-3">
+                      {api.reorder && !groupBy && (
+                        <div className="flex flex-none flex-col">
+                          <button
+                            type="button"
+                            className="rounded px-1.5 text-slate-400 hover:text-cyan disabled:opacity-25"
+                            onClick={() => void move(index, -1)}
+                            disabled={moving || index === 0}
+                            aria-label={`Move ${s.primary} up`}
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded px-1.5 text-slate-400 hover:text-cyan disabled:opacity-25"
+                            onClick={() => void move(index, 1)}
+                            disabled={moving || index === list.length - 1}
+                            aria-label={`Move ${s.primary} down`}
+                          >
+                            ▼
+                          </button>
+                        </div>
+                      )}
                       {s.visual}
                       {s.image && <img src={s.image} alt="" className="h-12 w-12 flex-none rounded-md object-cover" />}
                       <span className="w-8 flex-none font-mono text-xs text-slate-500">#{item.displayOrder}</span>

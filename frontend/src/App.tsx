@@ -8,6 +8,7 @@ import { AuthProvider } from './admin/AuthContext';
 import ProtectedRoute from './admin/ProtectedRoute';
 import HackerLoader from './components/HackerLoader';
 
+const BucketListPage = lazy(() => import('./BucketListPage'));
 const AdminLogin = lazy(() => import('./admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
 
@@ -26,6 +27,7 @@ export default function App() {
                   </PortfolioProvider>
                 }
               />
+              <Route path="/bucketlist" element={<BucketListPage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
                 path="/admin"
